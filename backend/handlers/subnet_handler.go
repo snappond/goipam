@@ -19,6 +19,8 @@ type CreateSubnetRequest struct {
 	VlanID          *int   `json:"vlan_id"`
 	ScanEnabled     *bool  `json:"scan_enabled"`
 	DiscoverEnabled *bool  `json:"discover_enabled"`
+	DHCPStartIP     string `json:"dhcp_start_ip"`
+	DHCPEndIP       string `json:"dhcp_end_ip"`
 }
 
 type UpdateSubnetRequest struct {
@@ -27,6 +29,8 @@ type UpdateSubnetRequest struct {
 	VlanID          *int   `json:"vlan_id"`
 	ScanEnabled     *bool  `json:"scan_enabled"`
 	DiscoverEnabled *bool  `json:"discover_enabled"`
+	DHCPStartIP     string `json:"dhcp_start_ip"`
+	DHCPEndIP       string `json:"dhcp_end_ip"`
 }
 
 // ListSubnets はサブネット一覧を取得し、使用率と空きIP数を計算して返します
@@ -104,6 +108,8 @@ func CreateSubnet(c echo.Context) error {
 		VlanID:           req.VlanID,
 		ScanEnabled:      scanEnabled,
 		DiscoverEnabled:  discoverEnabled,
+		DHCPStartIP:      req.DHCPStartIP,
+		DHCPEndIP:        req.DHCPEndIP,
 		NetworkAddress:   details.NetworkAddress,
 		BroadcastAddress: details.BroadcastAddress,
 		Mask:             details.Mask,
@@ -140,6 +146,8 @@ func UpdateSubnet(c echo.Context) error {
 	}
 	updates["description"] = req.Description
 	updates["vlan_id"] = req.VlanID
+	updates["dhcp_start_ip"] = req.DHCPStartIP
+	updates["dhcp_end_ip"] = req.DHCPEndIP
 	if req.ScanEnabled != nil {
 		updates["scan_enabled"] = *req.ScanEnabled
 	}
@@ -184,7 +192,7 @@ func GetFirstFreeIP(c echo.Context) error {
 	var usedIPs []string
 	database.DB.Model(&models.IPAddress{}).Where("subnet_id = ?", id).Pluck("ip_address", &usedIPs)
 
-	freeIP, err := services.FindFirstFreeIP(subnet.CIDR, usedIPs)
+	freeIP, err := services.FindFirstFreeIP(subnet.CIDR, usedIPs, subnet.DHCPStartIP, subnet.DHCPEndIP)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, echo.Map{"error": err.Error()})
 	}

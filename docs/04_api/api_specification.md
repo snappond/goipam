@@ -29,6 +29,8 @@
     "vlan_id": 10,
     "scan_enabled": true,
     "discover_enabled": true,
+    "dhcp_start_ip": "192.168.1.100",
+    "dhcp_end_ip": "192.168.1.200",
     "network_address": "192.168.1.0",
     "broadcast_address": "192.168.1.255",
     "mask": "255.255.255.0",
@@ -51,7 +53,9 @@
   "description": "第1執務室",
   "vlan_id": 10,
   "scan_enabled": true,
-  "discover_enabled": true
+  "discover_enabled": true,
+  "dhcp_start_ip": "192.168.1.100",
+  "dhcp_end_ip": "192.168.1.200"
 }
 ```
 - **Response (201 Created)**: 作成されたサブネットオブジェクト (ネットワーク・マスク情報等自動計算)
@@ -69,7 +73,9 @@
   "description": "更新後の説明",
   "vlan_id": 20,
   "scan_enabled": true,
-  "discover_enabled": false
+  "discover_enabled": false,
+  "dhcp_start_ip": "192.168.1.100",
+  "dhcp_end_ip": "192.168.1.200"
 }
 ```
 - **Response (200 OK)**: 更新後のサブネットオブジェクト

@@ -80,17 +80,25 @@ export const SubnetList: React.FC<SubnetListProps> = ({
                 <p className="text-xs text-slate-500 line-clamp-2 mb-3">{subnet.description}</p>
               )}
 
-              {/* スキャン設定バッジ */}
-              <div className="flex items-center space-x-2 text-[11px] text-slate-500 mb-4">
+              {/* スキャン設定バッジ & DHCP範囲 */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 mb-4">
                 <span className={`inline-flex items-center space-x-1 ${subnet.scan_enabled ? 'text-emerald-700' : 'text-slate-400'}`}>
                   <Activity className="w-3 h-3" />
-                  <span>{subnet.scan_enabled ? '定期Ping有効' : '定期Ping無効'}</span>
+                  <span>{subnet.scan_enabled ? '定期Ping' : 'Ping無効'}</span>
                 </span>
                 <span>•</span>
                 <span className={`inline-flex items-center space-x-1 ${subnet.discover_enabled ? 'text-blue-700' : 'text-slate-400'}`}>
                   <Radio className="w-3 h-3" />
-                  <span>{subnet.discover_enabled ? '定期探索有効' : '定期探索無効'}</span>
+                  <span>{subnet.discover_enabled ? '定期探索' : '探索無効'}</span>
                 </span>
+                {subnet.dhcp_start_ip && subnet.dhcp_end_ip && (
+                  <>
+                    <span>•</span>
+                    <span className="bg-amber-50 text-amber-700 font-mono px-1.5 py-0.2 rounded border border-amber-200">
+                      DHCP: {subnet.dhcp_start_ip}〜{subnet.dhcp_end_ip}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 

@@ -99,15 +99,30 @@ func lookupARPMAC(targetIP string) string {
 	return ""
 }
 
-// ScanSubnetRegisteredAddresses はサブネットに登録されている全IPの死活確認を行います
+// ScanSubnetRegisteredAddresses はサブネットに登録されている全IPの死活確認を行います（DHCP範囲およびステータスdhcpは除外）
 func ScanSubnetRegisteredAddresses(subnetID uint) (*ScanStatusResult, error) {
 	startTime := time.Now()
+
+	var subnet models.Subnet
+	if err := database.DB.First(&subnet, subnetID).Error; err != nil {
+		return nil, err
+	}
+
 	var ips []models.IPAddress
 	if err := database.DB.Where("subnet_id = ?", subnetID).Find(&ips).Error; err != nil {
 		return nil, err
 	}
 
-	if len(ips) == 0 {
+	// DHCP除外フィルタリング
+	var scanTargets []models.IPAddress
+	for _, addr := range ips {
+		if addr.Status == "dhcp" || IsIPInDHCPRange(addr.IPAddress, subnet.DHCPStartIP, subnet.DHCPEndIP) {
+			continue // DHCP機器は死活確認から除外
+		}
+		scanTargets = append(scanTargets, addr)
+	}
+
+	if len(scanTargets) == 0 {
 		return &ScanStatusResult{ScannedCount: 0, ElapsedMS: 0}, nil
 	}
 
@@ -120,7 +135,7 @@ func ScanSubnetRegisteredAddresses(subnetID uint) (*ScanStatusResult, error) {
 	offlineCount := 0
 	now := time.Now()
 
-	for i := range ips {
+	for i := range scanTargets {
 		wg.Add(1)
 		go func(addr models.IPAddress) {
 			defer wg.Done()
@@ -148,14 +163,14 @@ func ScanSubnetRegisteredAddresses(subnetID uint) (*ScanStatusResult, error) {
 				"last_seen":    addr.LastSeen,
 				"last_checked": addr.LastChecked,
 			})
-		}(ips[i])
+		}(scanTargets[i])
 	}
 
 	wg.Wait()
 	elapsed := time.Since(startTime).Milliseconds()
 
 	return &ScanStatusResult{
-		ScannedCount: len(ips),
+		ScannedCount: len(scanTargets),
 		OnlineCount:  onlineCount,
 		OfflineCount: offlineCount,
 		ElapsedMS:    elapsed,
@@ -184,10 +199,10 @@ func DiscoverSubnetHosts(subnetID uint) (*DiscoveryResult, error) {
 		regMap[r.IPAddress] = true
 	}
 
-	// 走査対象 = 未登録のIP
+	// 走査対象 = 未登録かつDHCP範囲外のIP
 	var targets []string
 	for _, ip := range usableIPs {
-		if !regMap[ip] {
+		if !regMap[ip] && !IsIPInDHCPRange(ip, subnet.DHCPStartIP, subnet.DHCPEndIP) {
 			targets = append(targets, ip)
 		}
 	}

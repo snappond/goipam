@@ -6,6 +6,8 @@ export interface Subnet {
   vlan_id?: number | null;
   scan_enabled: boolean;
   discover_enabled: boolean;
+  dhcp_start_ip?: string | null;
+  dhcp_end_ip?: string | null;
   network_address: string;
   broadcast_address: string;
   mask: string;

@@ -87,7 +87,7 @@ goipam/
 │   │   ├── api/                    # APIクライアント
 │   │   ├── components/             # UIコンポーネント群
 │   │   └── types/                  # 型定義
-└── .trace/                         # 本家phpIPAMリファレンス (Git管理外)
+└── docs/                           # 設計ドキュメント一式
 ```
 
 ---

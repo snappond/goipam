@@ -85,8 +85,46 @@ func ParseCIDR(cidrStr string) (*CIDRDetails, error) {
 	}, nil
 }
 
-// FindFirstFreeIP は利用可能IPの中から、既に割り当てられているIP一覧に含まれない最初のIPを返します
-func FindFirstFreeIP(cidrStr string, usedIPs []string) (string, error) {
+// IPToUint32 はIPv4文字列をuint32の数値に変換します
+func IPToUint32(ipStr string) (uint32, error) {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return 0, fmt.Errorf("invalid IP: %s", ipStr)
+	}
+	ipv4 := ip.To4()
+	if ipv4 == nil {
+		return 0, fmt.Errorf("not an IPv4 address: %s", ipStr)
+	}
+	return binary.BigEndian.Uint32(ipv4), nil
+}
+
+// IsIPInDHCPRange は指定IPがDHCP範囲内に含まれるかを判定します
+func IsIPInDHCPRange(targetIP, dhcpStart, dhcpEnd string) bool {
+	if dhcpStart == "" || dhcpEnd == "" {
+		return false
+	}
+	targetInt, err := IPToUint32(targetIP)
+	if err != nil {
+		return false
+	}
+	startInt, err := IPToUint32(dhcpStart)
+	if err != nil {
+		return false
+	}
+	endInt, err := IPToUint32(dhcpEnd)
+	if err != nil {
+		return false
+	}
+
+	if startInt > endInt {
+		startInt, endInt = endInt, startInt
+	}
+
+	return targetInt >= startInt && targetInt <= endInt
+}
+
+// FindFirstFreeIP は利用可能IPの中から、既に割り当てられているIP一覧およびDHCP範囲に含まれない最初のIPを返します
+func FindFirstFreeIP(cidrStr string, usedIPs []string, dhcpStart, dhcpEnd string) (string, error) {
 	if _, err := ParseCIDR(cidrStr); err != nil {
 		return "", err
 	}
@@ -119,12 +157,16 @@ func FindFirstFreeIP(cidrStr string, usedIPs []string) (string, error) {
 		tmpIP := make(net.IP, 4)
 		binary.BigEndian.PutUint32(tmpIP, current)
 		ipStr := tmpIP.String()
-		if !usedSet[ipStr] {
-			return ipStr, nil
+
+		// 既に使われているか、DHCP範囲内の場合はスキップ
+		if usedSet[ipStr] || IsIPInDHCPRange(ipStr, dhcpStart, dhcpEnd) {
+			continue
 		}
+
+		return ipStr, nil
 	}
 
-	return "", fmt.Errorf("no free IP available in this subnet")
+	return "", fmt.Errorf("no free IP available outside of DHCP range in this subnet")
 }
 
 // GetAllUsableIPs はサブネット内の全利用可能IPスライスを返します (スキャン用)

@@ -49,6 +49,9 @@ GoIPAMでは、**Go言語ネイティブの強力な並行処理（goroutine + �
 
 ### 3.1 死活監視 (Status Check: `pingCheck`)
 - **対象**: `ip_addresses` テーブルに登録されている全IP
+- **除外対象**:
+  - ステータスが `dhcp` のIPアドレス
+  - サブネットのDHCP除外範囲（`dhcp_start_ip` 〜 `dhcp_end_ip`）に含まれるIPアドレス
 - **目的**: 登録済みホストのオンライン/オフライン状態、および `last_seen` 日時の更新
 - **判定ルール**:
   - ICMP応答あり:
@@ -61,7 +64,9 @@ GoIPAMでは、**Go言語ネイティブの強力な並行処理（goroutine + �
 
 ### 3.2 未登録ホスト探索 (Host Discovery: `discoveryCheck`)
 - **対象**: サブネットの利用可能範囲（ネットワークアドレスとブロードキャストを除く全IP）
-- **除外対象**: 既に `ip_addresses` に登録されているIP
+- **除外対象**:
+  - 既に `ip_addresses` に登録されているIP
+  - サブネットのDHCP除外範囲（`dhcp_start_ip` 〜 `dhcp_end_ip`）に含まれるIP（一時的接続クライアントの誤検知を防止）
 - **判定ルール**:
   - ICMP応答があった場合:
     1. `net.LookupAddr(ip)` により逆引きホスト名を取得

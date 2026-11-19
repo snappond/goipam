@@ -22,6 +22,8 @@ erDiagram
         integer vlan_id "VLAN ID (任意)"
         boolean scan_enabled "定期死活監視フラグ"
         boolean discover_enabled "定期探索フラグ"
+        varchar dhcp_start_ip "DHCP除外範囲の開始IP"
+        varchar dhcp_end_ip "DHCP除外範囲の終了IP"
         varchar network_address "ネットワークアドレス"
         varchar broadcast_address "ブロードキャストアドレス"
         varchar mask "サブネットマスク"
@@ -74,6 +76,8 @@ erDiagram
 | `vlan_id` | INTEGER | YES | NULL | VLAN番号 (任意) |
 | `scan_enabled` | BOOLEAN | NO | true | 定期死活Pingを実行するか |
 | `discover_enabled`| BOOLEAN | NO | true | 定期ホスト探索を実行するか |
+| `dhcp_start_ip` | VARCHAR(15) | YES | NULL | DHCP除外範囲の開始IP (探索・死活監視対象外) |
+| `dhcp_end_ip`   | VARCHAR(15) | YES | NULL | DHCP除外範囲の終了IP (探索・死活監視対象外) |
 | `network_address`| VARCHAR(15) | NO | | ネットワークアドレス (自動計算) |
 | `broadcast_address`| VARCHAR(15)| NO | | ブロードキャストアドレス (自動計算) |
 | `mask` | VARCHAR(15) | NO | | サブネットマスク (自動計算) |

@@ -17,6 +17,8 @@ export const CreateSubnetModal: React.FC<CreateSubnetModalProps> = ({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [vlanId, setVlanId] = useState('');
+  const [dhcpStartIp, setDhcpStartIp] = useState('');
+  const [dhcpEndIp, setDhcpEndIp] = useState('');
   const [scanEnabled, setScanEnabled] = useState(true);
   const [discoverEnabled, setDiscoverEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,12 +39,16 @@ export const CreateSubnetModal: React.FC<CreateSubnetModalProps> = ({
         vlan_id: vlanId ? parseInt(vlanId, 10) : null,
         scan_enabled: scanEnabled,
         discover_enabled: discoverEnabled,
+        dhcp_start_ip: dhcpStartIp.trim() || undefined,
+        dhcp_end_ip: dhcpEndIp.trim() || undefined,
       });
       // リセット
       setCidr('');
       setName('');
       setDescription('');
       setVlanId('');
+      setDhcpStartIp('');
+      setDhcpEndIp('');
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -130,6 +136,34 @@ export const CreateSubnetModal: React.FC<CreateSubnetModalProps> = ({
                 className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
+          </div>
+
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                DHCP除外範囲 (任意)
+              </span>
+              <span className="text-[10px] text-slate-500">スキャン・探索から除外</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="開始IP (例: 192.168.1.100)"
+                value={dhcpStartIp}
+                onChange={(e) => setDhcpStartIp(e.target.value)}
+                className="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="終了IP (例: 192.168.1.200)"
+                value={dhcpEndIp}
+                onChange={(e) => setDhcpEndIp(e.target.value)}
+                className="w-full px-3 py-1.5 border border-slate-300 rounded-md text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <p className="text-[11px] text-slate-400">
+              ※この範囲のIPは自動探索、定期死活監視、および空きIPサジェストから除外されます。
+            </p>
           </div>
 
           <div className="pt-2 border-t border-slate-100 space-y-2">

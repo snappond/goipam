@@ -26,8 +26,26 @@ export const createSubnet = async (data: {
   vlan_id?: number | null;
   scan_enabled?: boolean;
   discover_enabled?: boolean;
+  dhcp_start_ip?: string;
+  dhcp_end_ip?: string;
 }): Promise<Subnet> => {
   const res = await api.post('/subnets', data);
+  return res.data;
+};
+
+export const updateSubnet = async (
+  id: number,
+  data: {
+    name?: string;
+    description?: string;
+    vlan_id?: number | null;
+    scan_enabled?: boolean;
+    discover_enabled?: boolean;
+    dhcp_start_ip?: string;
+    dhcp_end_ip?: string;
+  }
+): Promise<Subnet> => {
+  const res = await api.put(`/subnets/${id}`, data);
   return res.data;
 };
 

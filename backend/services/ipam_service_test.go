@@ -26,7 +26,7 @@ func TestParseCIDR(t *testing.T) {
 
 func TestFindFirstFreeIP(t *testing.T) {
 	used := []string{"192.168.1.1", "192.168.1.2"}
-	freeIP, err := FindFirstFreeIP("192.168.1.0/24", used)
+	freeIP, err := FindFirstFreeIP("192.168.1.0/24", used, "", "")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -36,3 +36,27 @@ func TestFindFirstFreeIP(t *testing.T) {
 	}
 }
 
+func TestFindFirstFreeIPWithDHCP(t *testing.T) {
+	used := []string{"192.168.1.1"}
+	// 192.168.1.2 〜 192.168.1.10 がDHCP範囲の場合、192.168.1.11 が提案されるべき
+	freeIP, err := FindFirstFreeIP("192.168.1.0/24", used, "192.168.1.2", "192.168.1.10")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if freeIP != "192.168.1.11" {
+		t.Errorf("expected 192.168.1.11, got %s", freeIP)
+	}
+}
+
+func TestIsIPInDHCPRange(t *testing.T) {
+	if !IsIPInDHCPRange("192.168.1.50", "192.168.1.10", "192.168.1.100") {
+		t.Errorf("expected 192.168.1.50 to be in range 10-100")
+	}
+	if IsIPInDHCPRange("192.168.1.5", "192.168.1.10", "192.168.1.100") {
+		t.Errorf("expected 192.168.1.5 NOT to be in range 10-100")
+	}
+	if IsIPInDHCPRange("192.168.1.150", "192.168.1.10", "192.168.1.100") {
+		t.Errorf("expected 192.168.1.150 NOT to be in range 10-100")
+	}
+}

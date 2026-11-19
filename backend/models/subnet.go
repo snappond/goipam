@@ -12,6 +12,8 @@ type Subnet struct {
 	VlanID           *int      `json:"vlan_id"`
 	ScanEnabled      bool      `gorm:"default:true;not null" json:"scan_enabled"`
 	DiscoverEnabled  bool      `gorm:"default:true;not null" json:"discover_enabled"`
+	DHCPStartIP      string    `gorm:"size:15" json:"dhcp_start_ip"` // DHCP除外範囲の開始IP
+	DHCPEndIP        string    `gorm:"size:15" json:"dhcp_end_ip"`   // DHCP除外範囲の終了IP
 	NetworkAddress   string    `gorm:"size:15;not null" json:"network_address"`
 	BroadcastAddress string    `gorm:"size:15;not null" json:"broadcast_address"`
 	Mask             string    `gorm:"size:15;not null" json:"mask"`
