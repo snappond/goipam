@@ -80,23 +80,23 @@ goipam/
 │   ├── models/                     # GORMエンティティ定義
 │   ├── services/                   # CIDR計算 & 並行Pingスキャナー
 │   └── handlers/                   # REST APIハンドラー
-├── frontend/                       # React SPA
-│   ├── Dockerfile
-│   ├── nginx.conf                  # Nginx配信 & APIプロキシ
-│   ├── src/
-│   │   ├── api/                    # APIクライアント
-│   │   ├── components/             # UIコンポーネント群
-│   │   └── types/                  # 型定義
-└── docs/                           # 設計ドキュメント一式
+└── frontend/                       # React SPA
+    ├── Dockerfile
+    ├── nginx.conf                  # Nginx配信 & APIプロキシ
+    ├── src/
+    │   ├── api/                    # APIクライアント
+    │   ├── components/             # UIコンポーネント群
+    │   └── types/                  # 型定義
+    └── package.json
 ```
 
 ---
 
 ## 📄 設計ドキュメント
 詳細な設計仕様は `docs/` 配下を参照してください：
-- [要件定義書](file:///Users/taichi/Documents/開発/goipam/docs/01_requirements/requirements.md)
-- [システムアーキテクチャ設計書](file:///Users/taichi/Documents/開発/goipam/docs/02_architecture/architecture.md)
-- [データベース物理設計書](file:///Users/taichi/Documents/開発/goipam/docs/03_database/schema.md)
-- [REST API仕様書](file:///Users/taichi/Documents/開発/goipam/docs/04_api/api_specification.md)
-- [PING生存確認 & ホスト探索設計書](file:///Users/taichi/Documents/開発/goipam/docs/05_scanner/scanner_design.md)
+- [要件定義書](docs/01_requirements/requirements.md)
+- [システムアーキテクチャ設計書](docs/02_architecture/architecture.md)
+- [データベース物理設計書](docs/03_database/schema.md)
+- [REST API仕様書](docs/04_api/api_specification.md)
+- [PING生存確認 & ホスト探索設計書](docs/05_scanner/scanner_design.md)
 
