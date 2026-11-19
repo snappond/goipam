@@ -72,6 +72,7 @@ func main() {
 
 			// 検出された未登録ホスト
 			subnets.GET("/:id/discovered", handlers.ListDiscoveredHosts)
+			subnets.DELETE("/:id/discovered", handlers.ClearSubnetDiscoveredHosts)
 		}
 
 		// IP アドレス個別 API
@@ -87,6 +88,7 @@ func main() {
 		{
 			discovered.POST("/:id/register", handlers.RegisterDiscoveredHost)
 			discovered.DELETE("/:id", handlers.DeleteDiscoveredHost)
+			discovered.POST("/batch-delete", handlers.BatchDeleteDiscoveredHosts)
 		}
 	}
 

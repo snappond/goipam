@@ -130,3 +130,40 @@ func DeleteDiscoveredHost(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+type BatchDeleteDiscoveredRequest struct {
+	IDs []uint `json:"ids"`
+}
+
+// ClearSubnetDiscoveredHosts はサブネット配下の未登録検出ホスト（pending）をすべて削除します
+func ClearSubnetDiscoveredHosts(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "invalid subnet id"})
+	}
+
+	if err := database.DB.Where("subnet_id = ? AND status = ?", id, "pending").
+		Delete(&models.DiscoveredHost{}).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+// BatchDeleteDiscoveredHosts は指定された複数の検出ホストIDを一括削除します
+func BatchDeleteDiscoveredHosts(c echo.Context) error {
+	var req BatchDeleteDiscoveredRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "invalid request body"})
+	}
+
+	if len(req.IDs) == 0 {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "no ids provided"})
+	}
+
+	if err := database.DB.Where("id IN ?", req.IDs).Delete(&models.DiscoveredHost{}).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, echo.Map{"error": err.Error()})
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+

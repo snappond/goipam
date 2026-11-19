@@ -136,3 +136,11 @@ export const deleteDiscoveredHost = async (id: number): Promise<void> => {
   await api.delete(`/discovered/${id}`);
 };
 
+export const clearDiscoveredHosts = async (subnetId: number): Promise<void> => {
+  await api.delete(`/subnets/${subnetId}/discovered`);
+};
+
+export const batchDeleteDiscoveredHosts = async (ids: number[]): Promise<void> => {
+  await api.post('/discovered/batch-delete', { ids });
+};
+

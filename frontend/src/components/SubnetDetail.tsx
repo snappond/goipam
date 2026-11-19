@@ -23,8 +23,10 @@ import {
   Wifi,
   Sparkles,
   Settings,
+  Pencil,
 } from 'lucide-react';
 import { EditSubnetModal } from './EditSubnetModal';
+import { EditIPModal } from './EditIPModal';
 
 interface SubnetDetailProps {
   subnet: Subnet;
@@ -48,6 +50,7 @@ export const SubnetDetail: React.FC<SubnetDetailProps> = ({
   const [pingingId, setPingingId] = useState<number | null>(null);
   const [scanMessage, setScanMessage] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editIPTarget, setEditIPTarget] = useState<IPAddress | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -402,6 +405,13 @@ export const SubnetDetail: React.FC<SubnetDetailProps> = ({
                       <td className="px-6 py-3.5 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end space-x-1">
                           <button
+                            onClick={() => setEditIPTarget(addr)}
+                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="編集"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handlePingSingle(addr.id)}
                             disabled={pingingId === addr.id}
                             className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
@@ -426,7 +436,7 @@ export const SubnetDetail: React.FC<SubnetDetailProps> = ({
           )}
         </div>
       ) : (
-        <DiscoveredHostsTable hosts={discoveredHosts} onRefresh={fetchData} />
+        <DiscoveredHostsTable subnetId={subnet.id} hosts={discoveredHosts} onRefresh={fetchData} />
       )}
       {/* サブネット設定編集モーダル */}
       <EditSubnetModal
@@ -438,6 +448,18 @@ export const SubnetDetail: React.FC<SubnetDetailProps> = ({
         }}
         subnet={subnet}
       />
+      {/* IPアドレス編集モーダル */}
+      {editIPTarget && (
+        <EditIPModal
+          isOpen={editIPTarget !== null}
+          onClose={() => setEditIPTarget(null)}
+          onSuccess={() => {
+            fetchData();
+            onSubnetUpdated();
+          }}
+          address={editIPTarget}
+        />
+      )}
     </div>
   );
 };

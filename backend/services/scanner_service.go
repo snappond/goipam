@@ -199,6 +199,15 @@ func DiscoverSubnetHosts(subnetID uint) (*DiscoveryResult, error) {
 		regMap[r.IPAddress] = true
 	}
 
+	// DHCP範囲内になったものや、既に正式登録済みの古いpendingレコードを自動パージ
+	var pendingList []models.DiscoveredHost
+	database.DB.Where("subnet_id = ? AND status = ?", subnetID, "pending").Find(&pendingList)
+	for _, p := range pendingList {
+		if regMap[p.IPAddress] || IsIPInDHCPRange(p.IPAddress, subnet.DHCPStartIP, subnet.DHCPEndIP) {
+			database.DB.Delete(&p)
+		}
+	}
+
 	// 走査対象 = 未登録かつDHCP範囲外のIP
 	var targets []string
 	for _, ip := range usableIPs {
